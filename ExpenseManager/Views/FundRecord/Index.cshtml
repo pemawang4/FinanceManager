@@ -1,0 +1,106 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "New Fund Record";
+}
+
+@model FundRecord
+<h1>Save New Fund</h1>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="inputState">Main Fund</label>
+                <select id="mainFundId" class="form-control" asp-for="MainFundId">
+                    <option selected>Choose main fund</option>
+                    @foreach (var item in ViewBag.mainFundList)
+                    {
+                        <option value="@item.Id">@item.FundName</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="inputState">Sub Fund</label>
+                <select id="subFundId" class="form-control subFund" asp-for="SubFundId">
+                    <option selected value="">Choose sub fund</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label class="inputState">Amount</label>
+                <input type="number" asp-for="FundAmount" id="fundAmount" class="form-control" placeholder="Enter ammount" />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <button class="btn btn-success btn-md" id="createFundRecord">Save Fund</button>
+            </div>
+        </div>
+    </div>
+
+@section Scripts{
+    <script>
+    $(document).ready(function () {
+
+        $("body").on('change', '#mainFundId', function () {
+            var MainFundId = $("#mainFundId").val();
+            //if (MainFundId == '') {
+            //    $(".subFund").addClass('d-none');
+            //}
+
+            if (MainFundId != '') {
+                $.ajax({
+                    url: "GetSubFundById?id=" + MainFundId,
+                    type: "GET",
+                    data: { "id": $("#mainFundId").val()},
+                    success: function (response) {
+                        
+                        let html = '';
+                        html += "<option selected value=''>Select sub fund</option>";
+                        $.each(response, function (key, item) {
+                            html += "<option value=" + item.id + ">" + item.subFund;
+                            html += "</option>";
+                        });
+                        
+                        $(".subFund").html(html);
+                    },
+                    error: function () {},
+                });
+            }
+        });
+
+        $("#createFundRecord").click(function () {
+            var mainFundId = $("#mainFundId").val();
+            var subFundId = $("#subFundId").val();
+            var fundAmount = $("#fundAmount").val();
+            if (mainFundId == '' || subFundId == '') {
+                alert("Please select main and sub fund before proceding.")
+                return false;
+            }else if (fundAmount == '') {
+                alert("Please enter fund amount.");
+                return false;
+            }
+            var newUrl = '@Url.Action("Index", "FundRecord")';
+            $.ajax({
+                url: "CreateFundRecord",
+                type: "POST",
+                data: { MainFundId: mainFundId, SubFundId: subFundId, FundAmount: fundAmount },
+                success: function (response) {
+                    if (response.result == 'redirect') {
+                        window.location = response.url;
+                    }
+                    
+                },
+                error: function(response){}
+            });
+        });
+    });
+    </script>
+}

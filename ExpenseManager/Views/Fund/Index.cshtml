@@ -1,0 +1,153 @@
+﻿@{ 
+    ViewData["Title"] = "Funds";
+}
+
+@model List<Funds>
+<a class="btn btn-success mb-3" asp-action="Index" asp-controller="FundRecord">Create New Fund</a>
+<div class="row">
+    <div class="col-md-6">
+        <select class="custom-select" id="mainFundId" aria-label="Default select example">
+            <option selected value="">Select main fund</option>
+            @foreach (var item in Model)
+            {
+                <option value="@item.Id">@item.FundName</option>
+            }
+        </select>
+    </div>
+    <select class="custom-select subFund d-none col-md-6" id="subFundId">       
+    </select>
+</div>
+<div class="row fundRecord d-none mt-4">
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Fund Name</th>
+                <th>Last Updated</th>
+                <th>Fund Ammount</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+@section Scripts{ 
+<script>
+    $(document).ready(function () {
+        
+        $("body").on('change', '#mainFundId', function () {
+            var MainFundId = $("#mainFundId").val();
+            if (MainFundId == '') {
+                $(".subFund").addClass('d-none');
+            }
+            if (MainFundId != '') {
+                $.ajax({
+                    url: "/Fund/GetSubFundById?id=" + MainFundId,
+                    type: "GET",
+                    data: { "id": $("#mainFundId").val()},
+                    success: function (response) {
+                        let html = '';
+                        html += "<option selected value=''>Select sub fund</option>"; 
+                        $.each(response, function (key, item) {
+                            html += "<option value=" + item.id + ">" + item.subFund;
+                            html += "</option>";
+                        });
+                        html += "</select>";
+                        $(".subFund").removeClass("d-none").html(html);
+                    },
+                    error: function () {},
+                });
+            }
+        });
+        var MainFundId = "";
+        var SubFundId = ""
+        $("body").on("change", "#subFundId", function () {
+            MainFundId = $("#mainFundId").val();
+            SubFundId = $("#subFundId").val();
+            if (SubFundId != '') {
+                myFunction();
+            }  
+        });
+
+        function myFunction() {
+            $.ajax({
+                url: "/FundRecord/GetFundRecordById",
+                type: "GET",
+                data: { MainFundId: MainFundId, SubFundId: SubFundId },
+                success: function (response) {
+                    var html = '';
+                    $.each(response, function (key, item) {
+                        html += '<tr>';
+                        html += '<td>' + (key + 1) + '</td>';
+                        html += '<td>' + item.subFund + '</td>';
+                        html += '<td>' + item.updatedAtString + '</td>';
+                        html += '<td><span class="fundAmmount' + item.id + '">' + item.fundAmount + '</span><span class="fundAmmountSpan fund' + item.id + '"></span></td>';
+                        html += "<td><button class='btn btn-primary btn-sm updateFund updateBtn" + item.id + "' name='" + item.id + "'>Edit</button>";
+                        html += " <button class='btn btn-sm btn-danger deleteBtn' name='" + item.id + "'>Delete</button>";
+                        html += "</td > ";
+                        html += '</tr>';
+                    });
+                    $('.fundRecord').removeClass('d-none');
+                    $('tbody').html(html);
+                },
+                failure: function () { },
+            });
+        }
+
+        $('body').on("click", ".updateFund", function (e) {
+            e.preventDefault();
+            //myFunction();
+            var id = $(this).attr('name');
+            $.ajax({
+                url: "FundRecord/GetParticularFundRecordById",
+                type: "GET",
+                data: { id: id },
+                success: function (response) {
+                    if (id == response.id) {
+                        $('.fundAmmount' + response.id).addClass('d-none');
+                        $(".fund" + response.id).append("<input type='text' class='form-control newFund' value='" + response.fundAmount + "'>");
+                        $('.updateBtn' + response.id).html("Update");
+                        $('.updateBtn' + response.id).removeClass("btn-primary").addClass('btn-success fundId');
+                    }
+                },
+                error: function () {}
+            });
+        });
+
+        $('body').on('click', '.fundId', function () {
+            var id = $('.fundId').attr('name');
+            var fundAmmountNum = $('.newFund').val();
+            $.ajax({
+                url: "FundRecord/UpdateFundRecord",
+                type: "post",
+                data: { Id: id, FundAmount: fundAmmountNum },
+                success: function (response) {
+                    myFunction();
+                },
+                error: function () {}
+            });
+        });
+
+        $("body").on('click', '.deleteBtn', function () {
+            var id = $(this).attr('name');
+            if (confirm("Are you sure want to delete fund record.")) {
+                $.ajax({
+                    url: "FundRecord/DeleteFundRecord",
+                    type: "get",
+                    data: { id: id },
+                    success: function (response) {
+                        myFunction();
+                    },
+                    error: function () { }
+                });
+            } else {
+                return false;
+            }
+        });
+    });
+</script>
+}
+ 
+
+

@@ -1,0 +1,19 @@
+﻿@{
+    ViewData["Title"] = "Funds";
+}
+
+@model Funds
+<div class="row">
+    <div class="col-md-8">
+        <form asp-action="SaveFund" asp-controller="Fund" method="post">
+            <div class="form-group">
+                <label asp-for="FundName">Fund Name</label>
+                <input type="text" class="form-control" placeholder="Enter fund name" asp-for="FundName"/>
+                <span asp-validation-for="FundName"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create Fund" class="btn btn-success" />
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,54 @@
+﻿
+@{
+    ViewData["Title"] = "";
+}
+
+@model List<Funds>
+<div class="row">
+    <div class="col-md-12">
+        <select class="custom-select addSubFund" aria-label="Default select example" id="MainFundId">
+            <option selected value="">Create sub fund</option>
+            @foreach (var item in Model)
+            {
+                <option value="@item.Id">@item.FundName</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-12 subFund d-none">
+    </div>
+</div>
+
+@section Scripts{ 
+<script>
+    $(document).ready(function () {
+        $(".addSubFund").change(function () {
+            if ($('.addSubFund').val() == '') {
+                $(".subFund").hide();
+            } else {
+                $(".subFund").show();
+                $(".subFund").empty();
+                var data = "";
+                data += "<div class='form-group mt-3'>";
+                data += "<label>Sub Fund</label>";
+                data += "<input type='text' class='form-control' id='subFund' name='SubFund' />";
+                data += "<button class='btn btn-success mt-2' id='createSubFund'> Create Sub Fund </button>";
+                data += "</div>";
+                $(".subFund").append(data).removeClass("d-none");
+            }
+        });
+       
+        $("body").on('click', '#createSubFund', function () {
+            var mainFundId = $(".addSubFund").val();
+            $.ajax({
+                url: "/Fund/SaveSubFund",
+                data: { "SubFund": $('#subFund').val(), "MainFundId": $('#MainFundId').val() },
+                type: "GET",
+                success: function () {
+                    window.location.replace("Index");
+                },
+                error: function () { }
+            });
+        });
+    });
+</script>
+}

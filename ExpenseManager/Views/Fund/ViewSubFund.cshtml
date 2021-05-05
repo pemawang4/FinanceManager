@@ -1,0 +1,45 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+<a asp-controller="Fund" asp-action="CreateSubFund" class="btn btn-success mb-3">Create Sub Fund</a>
+@model List<SubFunds>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Fund Name</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            if (Model.Count > 0)
+            {
+                int i = 0;
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@(i + 1)</td>
+                        <td>@item.SubFund</td>
+                        <td>
+                            <a class="btn btn-primary btn-sm" asp-action="EditSubFund" asp-route-Id="@item.Id" asp-controller="Fund">Edit</a>
+                            <a class="btn btn-danger btn-sm" asp-action="DeleteSubFund" asp-route-Id="@item.Id" asp-controller="Fund" onclick="return confirm('Are you sure want to delete this fund?')">Delete</a>
+                        </td>
+                    </tr>
+                    i++;
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="3">No data available</td>
+                </tr>
+            }
+        }
+
+    </tbody>
+</table>

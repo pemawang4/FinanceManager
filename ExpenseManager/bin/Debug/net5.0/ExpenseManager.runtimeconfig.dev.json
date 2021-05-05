@@ -1,0 +1,8 @@
+{
+  "runtimeOptions": {
+    "additionalProbingPaths": [
+      "C:\\Users\\psherpa\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\psherpa\\.nuget\\packages"
+    ]
+  }
+}
